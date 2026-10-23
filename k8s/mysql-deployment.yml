@@ -2,9 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-deployment
-  namespace: bankapp
+  namespace: three-tier
   labels:
     app: mysql
+
 spec:
   strategy:
     type: Recreate
@@ -12,42 +13,43 @@ spec:
   selector:
     matchLabels:
       app: mysql
+
   template:
     metadata:
       labels:
         app: mysql
+
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
-        ports:
-        - containerPort: 3306
-        env:
-          - name: MYSQL_DATABASE
-            valueFrom:
-              configMapKeyRef:
-                name: bankapp-config-map
-                key: MYSQL_DATABASE
+        - name: mysql
+          image: mysql:8.0
+          ports: 
+            - containerPort: 3306
 
-          - name: MYSQL_ROOT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: bankapp-secrets
-                key: MYSQL_ROOT_PASSWORD
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: bankapp-config-map
+                  key: MYSQL_DATABASE
 
-        volumeMounts:
-          - name: mysql-storage
-            mountPath: /var/lib/mysql
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bankapp-mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
 
-        readinessProbe:
-            exec: 
-              command: ["mysqladmin", "ping", "-h", "localhost"]
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+
+          readinessProbe:
+            exec:
+              command: [ "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pTest@123"]
             initialDelaySeconds: 5
             periodSeconds: 5
 
-      volumes:   
+      volumes:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
-      
-

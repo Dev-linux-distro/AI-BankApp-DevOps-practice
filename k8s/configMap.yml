@@ -2,11 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bankapp-config-map
-  namespace: bankapp
+  namespace: three-tier
 data:
-  # property-like keys; each key maps to a simple value
-  MYSQL_DATABASE: bankappdb
+#In or under data of ConfigMap file we add all the varaible which are not sensitive and can be shared across the pods.
   MYSQL_HOST: mysql-service
+  MYSQL_DATABASE: bankappdb
   MYSQL_PORT: "3306"
   MYSQL_USER: root
-  OLLAMA_URL: http://ollama-service:11434 
+  OLLAMA_URL: http://ollama:11434

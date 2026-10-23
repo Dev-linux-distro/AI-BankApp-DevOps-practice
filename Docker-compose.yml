@@ -30,7 +30,7 @@ services:
 
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.multistage
 
     ports:
       - "8081:8080"

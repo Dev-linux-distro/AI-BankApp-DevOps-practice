@@ -1,26 +1,28 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: mysql-service
-  namespace: bankapp
+  namespace: three-tier
+
 spec:
   selector:
     app: mysql
   ports:
     - port: 3306
+  type: ClusterIP
 
 ---
 
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: bankapp-service
-  namespace: bankapp
+  namespace: three-tier
+
 spec:
   selector:
-    app: bankapp
+    app:  bankapp
   ports:
     - port: 8080
       targetPort: 8080
   type: NodePort
-

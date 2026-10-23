@@ -2,28 +2,34 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bankapp-deployment
-  namespace: bankapp
+  namespace: three-tier
   labels:
     app: bankapp
+
 spec:
-  replicas: 3
+  strategy:
+    type: RollingUpdate
+  replicas: 2
   selector:
     matchLabels:
       app: bankapp
+
   template:
     metadata:
       labels:
         app: bankapp
+
     spec:
       containers:
-      - name: bankapp
-        image: aniruddhakharve/bankapp:k8s
-        ports:
-        - containerPort: 8081
-        envFrom:
-          - configMapRef:
+        - name: bankapp
+          image: aniruddhakharve/ai-bank-app:v1.1
+          ports:
+            - containerPort: 8080
+        
+          envFrom:
+            - configMapRef:
                 name: bankapp-config-map
+            - secretRef:
+                name: bankapp-mysql-secret
 
-          - secretRef:
-                 name: bankapp-secrets    
-
+          

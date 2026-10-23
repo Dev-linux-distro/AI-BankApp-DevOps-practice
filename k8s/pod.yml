@@ -1,11 +1,14 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: bankapp
-  namespace: bankapp
-spec:
+  name: my-bankapp-pod
+  namespace: three-tier
+  labels:
+    app: three-tier
+
+spec: 
   containers:
-  - name: bankapp
-    image: aniruddhakharve/bankapp:latest
-    ports:
-    - containerPort: 80
+    - name: my-bankapp-container
+      image: docker pull aniruddhakharve/ai-bank-app:v1.1
+      ports:
+        - containerPort: 8080

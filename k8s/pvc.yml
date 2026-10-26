@@ -13,3 +13,21 @@ spec:
   resources:
     requests:
       storage: 5Gi
+
+--- 
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-pvc
+  namespace: three-tier
+spec:
+  selector:
+    matchLabels:
+      app: ollama
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,39 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bankapp-hpa
+  namespace: three-tier
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bankapp-deployment
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      selectPolicy: Max
+      policies:
+      - type: Pods
+        value: 2 #so if 2 pods are already running, it will add 2 more pods immediately at one time if scaleup is triggered, instead of adding 1 pod at a time
+        periodSeconds: 60
+      
+
+    scaleDown:
+      stabilizationWindowSeconds: 200
+      selectPolicy: Min
+      policies:
+      - type: Pods
+        value: 1 #so if 3 pods are already running, it will remove 1 pod immediately at one time if scaledown is triggered, instead of removing all pods at once
+        periodSeconds: 60
+
+      

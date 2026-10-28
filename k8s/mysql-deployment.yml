@@ -57,6 +57,14 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 
+
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pTest@123"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
+
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:

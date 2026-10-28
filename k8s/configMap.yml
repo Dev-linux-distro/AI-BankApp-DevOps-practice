@@ -9,4 +9,4 @@ data:
   MYSQL_DATABASE: bankappdb
   MYSQL_PORT: "3306"
   MYSQL_USER: root
-  OLLAMA_URL: http://ollama:11434
+  OLLAMA_URL: http://ollama-service:11434  # FIXED: Pointed to the service name

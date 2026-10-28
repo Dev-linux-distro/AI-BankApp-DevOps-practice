@@ -20,16 +20,62 @@ spec:
         app: bankapp
 
     spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z mysql-service 3306; do echo waiting for mysql; sleep 2; done;']
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+
+        - name: wait-for-ollama
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z ollama-service 11434; do echo waiting for ollama; sleep 2; done;'] # FIXED: Pointed to ollama-service
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+
       containers:
         - name: bankapp
           image: aniruddhakharve/ai-bank-app:v1.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-        
+            
           envFrom:
             - configMapRef:
                 name: bankapp-config-map
             - secretRef:
                 name: bankapp-mysql-secret
 
-          
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            failureThreshold: 15
+            
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5

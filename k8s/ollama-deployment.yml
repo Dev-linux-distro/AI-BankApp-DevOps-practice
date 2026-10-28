@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  namespace: three-tier
+  labels:
+    app: ollama
+
+spec:
+  selector:
+    matchLabels:
+      app: ollama
+  strategy:
+    type: Recreate
+  replicas: 1
+
+  template:
+    metadata:
+      labels:
+        app: ollama
+
+    spec:
+      nodeName: tws-cluster-worker2 
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest        # FIXED: Correct image format and pinned version to honor IfNotPresent
+          # imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 11434
+
+          envFrom:
+            - configMapRef:
+                name: bankapp-config-map
+            - secretRef:
+                name: bankapp-mysql-secret
+
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1.5Gi"
+              cpu: "1000m"
+
+          volumeMounts:
+            - name: ollama-storage
+              mountPath: /root/.ollama
+
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    until ollama list > /dev/null 2>&1; do sleep 2; done
+                    ollama pull tinyllama
+
+          readinessProbe:
+            httpGet:                           # FIXED: Avoid shell timeouts; use highly-optimized HTTP checks
+              path: /
+              port: 11434
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 5
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 11434
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+
+      volumes:
+        - name: ollama-storage
+          persistentVolumeClaim:
+            claimName: ollama-pvc

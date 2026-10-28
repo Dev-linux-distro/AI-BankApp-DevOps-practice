@@ -5,8 +5,8 @@ nodes:
   - role: control-plane
     image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
     extraPortMappings:
-      - containerPort: 8080
-        hostPort: 8081
+      - containerPort: 30080 #cluster node port 
+        hostPort: 8081  #Host Machine port to access the bankapp service
         protocol: TCP
 
   - role: worker
